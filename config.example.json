@@ -1,9 +1,10 @@
 {
-  "deviceDiscovery": {
-    "preferredSerial": "DEVICE_SERIAL_PLACEHOLDER"
-  },
   "backup": {
+    "deviceId": "primary-phone",
     "retentionSnapshots": 10
+  },
+  "storage": {
+    "nasMediaRoot": "\\\\YOUR_NAS_HOST\\phone_media"
   },
   "notifications": {
     "enabled": false,

@@ -3,8 +3,8 @@
 ## Baseline
 
 - Python 3.12
-- Android Platform Tools (`adb`)
-- Git + GitHub CLI (`gh`)
+- Windows: PowerShell for `tools/mtp_copy.ps1` (MTP copy smoke test)
+- Git + GitHub CLI (`gh`) optional for CI and PR workflows
 
 ## Setup options
 
@@ -14,6 +14,7 @@
 - `make lint`
 - `make test`
 - `make run`
+- `make mtp-copy-photo` (Windows MTP test; optional `DEVICE=name` substring)
 
 ### Option B: PowerShell direct commands
 

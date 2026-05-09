@@ -15,7 +15,6 @@ Preserve module boundaries and keep implementation understandable for agent-only
 
 ## Module ownership map
 
-- `src/devices`: ADB discovery and connectivity
 - `src/collectors`: source-specific data collection planning and execution
 - `src/storage`: snapshot and manifest persistence
 - `src/safety`: cleanup eligibility and dry-run enforcement

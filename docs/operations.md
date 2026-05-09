@@ -1,10 +1,40 @@
 # Operations Runbook
 
-## Standard backup run
+## Standard backup run (Python pipeline)
 
-1. Connect phone by USB and confirm ADB authorization on device.
-2. Run `make run` for default backup pipeline.
-3. Review generated report and verification status.
+1. Copy `config.example.json` to ignored `config.local.json` and set **`backup.deviceId`** to a short logical name for this phone (used under `data/backups/<deviceId>/...`). Do not commit secrets, real NAS paths, or personal identifiers you do not want in git.
+2. Set optional **`storage.nasMediaRoot`** in `config.local.json` if you track where NAS copies should go later.
+3. Connect the phone with USB **File transfer / MTP** when using Windows copy helpers.
+4. Run `make run` (or `python -m src.cli.main run`). Review the printed run folder, manifest, and report.
+
+## MTP copy (Windows, primary phone access)
+
+Use when the phone appears under **This PC** in File Explorer (USB **File transfer / MTP**). No Android Platform Tools required.
+
+1. Unlock the phone and accept any trust prompts.
+2. From the repo root, list what would be copied (no files written):
+
+   `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_copy.ps1 -ListOnly`
+
+3. If the script says multiple devices, pass a unique substring of the phone name:
+
+   `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_copy.ps1 -DeviceName "YourPhone" -ListOnly`
+
+4. Copy the first image to **`tmp/mtp-incoming`** (gitignored). By default the script **searches** under the internal volume for a **`DCIM/Camera`** folder (same tree as **This PC → your phone → internal storage → DCIM → Camera**). If MTP shows **only one** navigable folder under the phone (typical), that folder is treated as internal storage even when its display name does not match the built-in English/Chinese alias list.
+
+   `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_copy.ps1 -DeviceName "YourPhone"`
+
+5. If the camera roll lives deeper or under an unusual tree, raise the search depth:
+
+   `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_copy.ps1 -DeviceName "YourPhone" -MaxSearchDepth 28`
+
+6. If your OEM does not use `DCIM/Camera`, pass an explicit path (still backslashes); if the first segment is English `Internal storage`, localized internal-volume names are still tried for that segment:
+
+   `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_copy.ps1 -DeviceName "YourPhone" -RelativePath "Internal storage\DCIM\OpenCamera" -MaxFiles 1`
+
+   You can also pass `-RelativePath` with exact folder names as shown in Explorer.
+
+**Note:** This uses the same Shell layer as Explorer. For scripting, prefer stable **`DeviceName`** / **`RelativePath`** values in your own notes or `config.local.json` (not committed) rather than hardcoding device display strings in tracked files.
 
 ## Verification
 

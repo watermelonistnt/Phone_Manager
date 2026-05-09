@@ -2,6 +2,158 @@
 
 Use this format for meaningful sessions only. Keep balanced signal. Keep pushed blocks immutable.
 
+## 2026-05-09 - Remove ADB; MTP-first v1
+
+- Objective: Drop Android Platform Tools / adb from product plan and Python codebase; align with confirmed MTP copy success.
+- Completed:
+  - Deleted `src/devices/adb_discovery.py`, removed `src/devices/` package; deleted `tests/unit/test_adb_discovery.py`
+  - `src/cli/main.py`: only `run` subcommand (no `devices` list/connect/peek)
+  - `src/core/pipeline.py`: `backup.deviceId` via Settings → snapshot path + manifest `device_serial` (logical id)
+  - `src/config/settings.py`: removed deviceDiscovery fields; `device_id` + `nas_media_root`; `pyproject.toml` mypy `explicit_package_bases = true` (fixes duplicate-module check)
+  - `config.example.json`: `backup.deviceId`; removed deviceDiscovery block
+  - Docs: `docs/architecture.md`, `docs/operations.md`, `docs/environment.md`, `README.md`; `src/AGENT.md`; `.cursor/rules/agent-src-guidance.mdc` (no devices module); `tests/integration/test_backup_flow.py` comment
+  - ADR: `ADR-0001` status **Superseded**; new **`docs/decisions/ADR-0004-mtp-desktop-v1.md`** Accepted
+  - `tools/mtp_copy.ps1`: ASCII hyphen in ListOnly message (encoding)
+- Validation: `py -3.12 -m pytest tests -q` → **5** passed; `ruff check src tests`; `mypy src` OK
+- Blockers: none
+- Next: wire collectors to MTP paths; optional NAS copy from `storage.nasMediaRoot`
+
+## 2026-05-09 - MTP Shell folder reliability (`mtp_copy.ps1`, ops)
+
+- Objective: make MTP navigation robust when **Shell `IsFolder`** on MTP items is **unreliable**, and tighten child-folder resolution / internal-root discovery.
+- Completed:
+  - **`tools/mtp_copy.ps1`** — **`Test-ShellItemIsFolder`** prefers **`GetFolder()`** (folder probe) over trusting **`IsFolder`** alone; **`Resolve-ShellChildFolder`** **trim** + **`OrdinalIgnoreCase`** name match; **`Find-InternalStorageRoot`** **sole navigable child** fallback when the labeled internal root is unclear
+  - **`docs/operations.md`** — MTP **step 4** wording aligned with the above
+- Validation:
+  - operator-facing; COM / MTP Shell behavior
+- Blockers:
+  - none
+- Next actions:
+  - optional: handset smoke where MTP mis-reports folders or exposes a single obvious storage child
+
+## 2026-05-09 - MTP copy default AUTO + BFS `DCIM/Camera` (`mtp_copy.ps1`, ops, README)
+
+- Objective: default **AUTO** source under internal storage — breadth-first search for **`**/DCIM/Camera`** without assuming a single fixed folder layout; cap depth via **`-MaxSearchDepth`**; keep explicit **`-RelativePath`** behavior unchanged for operators who pin a path.
+- Completed:
+  - **`tools/mtp_copy.ps1`** — **`Find-DcimCameraFolder`** (BFS under resolved internal root); default mode **AUTO**; **`-MaxSearchDepth`** knob
+  - **`docs/operations.md`** — MTP line aligned with AUTO discovery + depth limit
+  - **`README.md`** — MTP pointer line aligned with script defaults / discovery
+- Validation:
+  - operator-facing; **`-RelativePath`** explicit path still honored when set
+- Blockers:
+  - none
+- Next actions:
+  - optional: handset smoke where `DCIM/Camera` is nested or renamed variants appear only under depth cap edge cases
+
+## 2026-05-09 - MTP internal root locale + DCIM fallback (`mtp_copy.ps1`, ops)
+
+- Objective: when the phone’s MTP root label is not English, still resolve **internal storage** and reach **`DCIM\Camera`**; document localized UI for operators.
+- Completed:
+  - **`tools/mtp_copy.ps1`** — **internal root locale aliases** (e.g. `內部儲存裝置` when the script default starts from English **`Internal storage`**); after resolving internal, **fallback navigate** **`DCIM\Camera`** under that root
+  - **`docs/operations.md`** — **step 6** notes for **localized** MTP / folder UI strings
+- Validation:
+  - operator-facing only; optional **ListOnly** smoke unchanged intent
+- Blockers:
+  - none
+- Next actions:
+  - optional: confirm on a handset whose internal root shows a non-English label
+
+## 2026-05-09 - MTP no-ADB path (`mtp_copy.ps1`, ops, README, Make)
+
+- Objective: give operators a Windows **MTP** path when **ADB** is not available — copy via **`Shell.Application`**, default phone folder **`Internal storage\DCIM\Camera`** → repo **`tmp/mtp-incoming`**; document in ops; one **README** line; **Makefile** target **`mtp-copy-photo`**.
+- Completed:
+  - **`tools/mtp_copy.ps1`** — COM folder browse/copy; default relative source above; destination under **`tmp/mtp-incoming`**
+  - **`docs/operations.md`** — section for MTP / no-ADB workflow (aligned with script usage)
+  - **`README.md`** — short pointer to MTP copy + Make target
+  - **`Makefile`** — **`mtp-copy-photo`** invokes the script (operator-friendly entry)
+- Validation:
+  - PowerShell script runs through **device resolution** with **ListOnly** (no full copy required for smoke)
+  - **`py -3.12 -m pytest tests -q`** — unchanged vs prior baseline if run (optional check; not gating this path)
+- Blockers:
+  - none
+- Next actions:
+  - optional: full copy smoke on a real handset when MTP mode is used in anger
+
+## 2026-05-09 - USB-first ops + non-fixed phone policy + `devices peek` CLI
+
+- Objective: treat USB as the default operator path, document that the managed phone is not tied to a single fixed serial, add a read-only `devices peek` path (remote listing helpers), and align example config with optional serial.
+- Completed:
+  - operational stance: **USB-first**; **non-fixed phone** — no assumption one serial always maps to the same physical handset unless operator pins it
+  - CLI **`devices peek`** using **`peek_remote_listing`** and **`resolve_adb`** (discovery/resolution path for peek)
+  - **`config.example.json`** — **`preferredSerial`** set to **`null`** (placeholder = no pin; use `config.local.json` when pinning)
+  - **`docs/operations.md`** — sections for **USB**, **swap** (switching handsets / serial), and **peek** (inspect remote listing without implying a fixed device)
+- Validation:
+  - `py -3.12 -m pytest tests -q` — **21** passed
+- Blockers:
+  - none
+- Next actions:
+  - keep ops + CLI in sync when collector or manifest paths gain more device context
+
+## 2026-05-09 - Wi-Fi ADB operator help (ping vs empty `adb devices`)
+
+- Objective: help operators when the phone answers ping but `adb devices` stays empty — pair port vs wireless debugging port, firewall, and quick port checks.
+- Completed:
+  - `docs/operations.md` — subsection **Ping works but adb devices is empty** (pair vs debug port, firewall, `Test-NetConnection`)
+  - CLI `devices connect HOST:PORT` wraps `adb connect`
+  - `run_adb_connect` in `src/devices/adb_discovery.py`
+- Validation:
+  - `py -3.12 -m pytest tests -q` — **19** passed
+- Blockers:
+  - none
+- Next actions:
+  - none noted (ops + connect path only)
+
+## 2026-05-09 - Zero transports operator UX (ADB hint + ops)
+
+- Objective: improve operator UX when `adb` lists zero transports — clearer `RuntimeError` path for USB vs Wi‑Fi wireless debugging (`adb pair`, `adb connect`) and a dedicated ops subsection.
+- Completed:
+  - expanded empty/zero-transport `RuntimeError` hint (USB cable/authorize vs wireless pair/connect)
+  - `docs/operations.md` — **No devices in adb**
+- Validation:
+  - targeted adb/pipeline tests pass
+- Blockers:
+  - none
+- Next actions:
+  - none (tiny UX/docs follow-up)
+
+## 2026-05-09 - Confidential device list export + config merge + NAS path placeholder
+
+- Objective: write discovered authorized devices to a private JSON list; load optional paths from merged `config.json` + `config.local.json`; record intended NAS media root for future collectors without committing LAN specifics.
+- Completed:
+  - `load_settings` deep-merge; Settings fields `device_discovery_list_path`, `nas_media_root`, `preferred_device_serial`
+  - `write_confidential_device_list` + `pick_device` in `adb_discovery`; pipeline writes list when path set
+  - CLI `devices list` with `--output` (no serials on stdout)
+  - `config.example.json` keys; `docs/operations.md` privacy/LAN notes
+  - tests — `py -3.12 -m pytest tests` passes (17 tests)
+- Decisions:
+  - real IPs/hostnames only in ignored `config.local.json`; tracked examples use placeholders
+  - default confidential path pattern `data/private/...` under ignored `data/`
+- Validation:
+  - pytest green (17 tests)
+- Blockers:
+  - `nas_media_root` not yet consumed by collectors (stub for layout)
+- Next actions:
+  - wire collectors/snapshot copy toward NAS path when manifest supports it
+
+## 2026-05-09 - Hardened real ADB probing
+
+- Objective: ship hardened real ADB probing (PATH check, `adb devices -l`, authorized-only selection, clear errors).
+- Completed:
+  - `src/devices/adb_discovery.py` (parse helper + probe behavior)
+  - `tests/unit/test_adb_discovery.py`
+  - pipeline no longer double-checks empty device list
+  - `docs/operations.md` steps for adb PATH and `device` state
+- Decisions:
+  - only transports with state `device` are used; blocked transports listed in error text
+- Validation:
+  - `py -3.12 -m pytest tests -q` — all tests pass (9 unit tests including adb + pipeline at time of run)
+- Blockers:
+  - existing `.venv` may still be Python 3.9 (`pip install -e` fails); recommend `make setup` after recreating venv with 3.12
+  - repo-wide `mypy src` may report pre-existing duplicate-module issue — do not claim fixed unless you verified
+- Next actions:
+  - implement collector adapters + integration fixtures
+  - operator: recreate venv with Python 3.12, install `gh`/GitHub auth per board
+
 ## 2026-05-09 - Push phrase scope + post-push confirmation
 
 - Objective: use push-auth sentence only when requesting push; confirm after successful push.

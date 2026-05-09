@@ -1,7 +1,7 @@
 PYTHON ?= python
 PIP ?= $(PYTHON) -m pip
 
-.PHONY: setup lint test run safety
+.PHONY: setup lint test run safety mtp-copy-photo
 
 setup:
 	$(PYTHON) -m venv .venv
@@ -21,3 +21,7 @@ safety:
 
 run:
 	.venv/Scripts/python -m src.cli.main run
+
+# Windows: copy first camera image to tmp/mtp-incoming via MTP (no adb). Optional DEVICE=name substring.
+mtp-copy-photo:
+	powershell -NoProfile -ExecutionPolicy Bypass -File tools/mtp_copy.ps1 $(if $(DEVICE),-DeviceName "$(DEVICE)",)

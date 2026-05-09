@@ -2,7 +2,7 @@
 
 ## Status
 
-Accepted
+Superseded by [ADR-0004-mtp-desktop-v1.md](./ADR-0004-mtp-desktop-v1.md) (MTP-first desktop; ADB removed from v1 plan).
 
 ## Context
 

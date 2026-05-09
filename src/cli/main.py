@@ -10,7 +10,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser = argparse.ArgumentParser(prog="phone-manager")
     subparsers = parser.add_subparsers(dest="command", required=True)
 
-    run_parser = subparsers.add_parser("run", help="Run backup pipeline.")
+    run_parser = subparsers.add_parser(
+        "run", help="Run backup pipeline (MTP-first desktop; see docs/operations.md)."
+    )
     run_parser.add_argument(
         "--cleanup",
         action="store_true",

@@ -130,16 +130,17 @@
     </section>
 
     <section class="card" style="margin-bottom: 14px;">
-      <h2>Firmed Ideas</h2>
-      <div class="chip ok">Locked decisions</div>
-      <p>Short bullets only. Expand details in <code>docs/progress.md</code> or an ADR.</p>
-      <ul>
-        <li>Live status UI is root <code>CURRENT_STATUS.html</code> only.</li>
-        <li>Progress-bearing work or user-stated future jobs → automatically sync both <code>docs/progress.md</code> and this page (background Task default).</li>
-        <li>Cleanup stays blocked until backup verification succeeds (v1 safety).</li>
-        <li>Review combined diff before commit.</li>
-        <li>Git push UX: use <code>say &quot;AUTHOURISE&quot; to push to git</code> only when requesting push; after successful push reply <code>PUSHED to git</code>.</li>
-      </ul>
+      <h2>Current Jobs (Next Step)</h2>
+      <div class="chip ok">Active now</div>
+      <ol>
+        <li>Install Python 3.12 and confirm <code>make setup</code> works.</li>
+        <li>Install <code>gh</code> CLI and configure GitHub authentication.</li>
+        <li><strong>MTP-first v1 (desktop):</strong> operator path is <code>tools/mtp_copy.ps1</code> (<code>Shell.Application</code>) + <code>make mtp-copy-photo</code> → <code>tmp/mtp-incoming</code>. Default <strong>AUTO</strong> BFS <code>Find-DcimCameraFolder</code> for <code>**/DCIM/Camera</code>, <code>-MaxSearchDepth</code>; explicit <code>-RelativePath</code> unchanged. Shell folder probe via <code>GetFolder()</code>, trim + case-insensitive child resolve, sole-child internal root fallback, locale internal-root aliases; ops MTP <strong>steps 4 / 6</strong> + README. <strong>ADR-0004</strong> (<code>docs/decisions/ADR-0004-mtp-desktop-v1.md</code>) Accepted; ADR-0001 Superseded.</li>
+        <li><strong>Config / pipeline:</strong> logical handset id via <code>backup.deviceId</code> in Settings → snapshot layout + manifest <code>device_serial</code>; optional <code>storage.nasMediaRoot</code> for future NAS copy. See <code>config.example.json</code> and <code>docs/operations.md</code>.</li>
+        <li><strong>Next engineering:</strong> wire collectors to MTP-import paths; optional NAS copy from <code>nasMediaRoot</code>; collector adapters in <code>src/collectors</code> plus integration fixtures.</li>
+        <li>Validation baseline: <code>py -3.12 -m pytest tests -q</code> → <strong>5</strong> passed; <code>ruff</code> + <code>mypy src</code> clean after MTP-first code drop.</li>
+        <li>Run <code>make lint</code> and <code>make test</code> after each meaningful change.</li>
+      </ol>
     </section>
 
     <section class="grid">
@@ -148,7 +149,8 @@
         <div class="chip warn">Pending</div>
         <ul>
           <li>Add automated safety checks in local and CI pipelines.</li>
-          <li>Implement real ADB probing for device discovery and trust checks.</li>
+          <li>Wire collectors and snapshot flow to MTP-import paths under the repo; extend <code>tools/mtp_copy.ps1</code> / ops only when new handset MTP edge cases appear (Shell probe, internal-root aliases, AUTO depth).</li>
+          <li>Optional: consume <code>nasMediaRoot</code> / <code>storage.nasMediaRoot</code> for NAS-side copy when manifest supports it.</li>
           <li>Implement collector adapters with integration fixtures.</li>
           <li>Set up Python 3.12 in the local environment.</li>
           <li>Install <code>gh</code> CLI for GitHub actions in this environment.</li>
@@ -173,15 +175,18 @@
       </article>
 
       <article class="card">
-        <h2>Current Jobs (Next Step)</h2>
-        <div class="chip ok">Active now</div>
-        <ol>
-          <li>Install Python 3.12 and confirm <code>make setup</code> works.</li>
-          <li>Install <code>gh</code> CLI and configure GitHub authentication.</li>
-          <li>Start real ADB probing in <code>src/devices</code>.</li>
-          <li>Start collector adapter implementation in <code>src/collectors</code>.</li>
-          <li>Run <code>make lint</code> and <code>make test</code> after each meaningful change.</li>
-        </ol>
+        <h2>Firmed Ideas</h2>
+        <div class="chip ok">Locked decisions</div>
+        <p>Short bullets only. Expand details in <code>docs/progress.md</code> or an ADR.</p>
+        <ul>
+          <li>Live status UI is root <code>CURRENT_STATUS.html</code> only.</li>
+          <li>Progress-bearing work or user-stated future jobs → automatically sync both <code>docs/progress.md</code> and this page (background Task default).</li>
+          <li>Cleanup stays blocked until backup verification succeeds (v1 safety).</li>
+          <li>Review combined diff before commit.</li>
+          <li>Git push UX: use <code>say &quot;AUTHOURISE&quot; to push to git</code> only when requesting push; after successful push reply <code>PUSHED to git</code>.</li>
+          <li>LAN-specific values (IPs/hostnames) live only in ignored <code>config.local.json</code>; tracked examples stay placeholder-only.</li>
+          <li><strong>MTP-first desktop v1</strong> per <strong>ADR-0004</strong>; Windows MTP ingest via <code>tools/mtp_copy.ps1</code> and <code>make mtp-copy-photo</code>; logical device identity is config <code>backup.deviceId</code> (manifest <code>device_serial</code>), not transport discovery.</li>
+        </ul>
       </article>
     </section>
 
@@ -199,7 +204,7 @@
       <div class="meta">
         Last updated: 2026-05-09<br>
         Updated by: Agent<br>
-        Note: Post-push confirmation line is <code>PUSHED to git</code> (see AGENT.md).
+        Note: Post-push confirmation line is <code>PUSHED to git</code> (see AGENT.md). Latest session: <strong>Remove ADB; MTP-first v1</strong> — no <code>src/devices</code>; CLI only <code>run</code>; <code>backup.deviceId</code> + manifest logical id; ADR-0001 Superseded, <strong>ADR-0004</strong> Accepted; pytest <strong>5</strong>, ruff, mypy OK; <code>mtp_copy.ps1</code> ListOnly message uses ASCII hyphen. Still true: <strong>MTP Shell reliability</strong> (<code>GetFolder()</code> probe, trim/case child resolve, sole-child internal root, locale aliases), <strong>AUTO</strong> BFS <code>DCIM/Camera</code>, <code>make mtp-copy-photo</code>. Next: collectors on MTP paths; optional <code>nasMediaRoot</code>.
       </div>
     </section>
   </main>

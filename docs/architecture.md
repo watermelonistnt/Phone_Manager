@@ -2,29 +2,28 @@
 
 ## System context
 
-The tool runs on a desktop computer and orchestrates Android backup/cleanup through ADB. Phones are treated as source devices, while the desktop filesystem is the system of record for backup snapshots and manifests.
+The tool runs on a desktop computer and orchestrates Android backup/cleanup using **MTP** (USB file transfer / Shell namespace on Windows) for operator-driven copies, with the desktop filesystem as the system of record for backup snapshots and manifests. **ADB is not used.**
 
 ## Module boundaries
 
 - `src/cli`: command entrypoints and argument parsing
 - `src/core`: orchestration pipeline and run state transitions
-- `src/devices`: device discovery and ADB connection validation
 - `src/collectors`: source-specific export/copy logic (Camera, WhatsApp wrapper)
 - `src/storage`: backup snapshot layout, manifest write/read, integrity checks
 - `src/safety`: cleanup eligibility checks and dry-run enforcement
 - `src/config`: typed settings and path conventions
 - `src/logging`: structured run logs and user-facing reports
+- `tools/`: desktop helpers (e.g. Windows MTP copy script)
 
 ## Primary workflow
 
-1. Discover device candidates.
-2. Validate ADB connectivity and trust state.
-3. Build backup plan by enabled collectors.
-4. Copy data to timestamped snapshot.
-5. Generate manifest with hashes and metadata.
-6. Verify copied files against manifest.
-7. Gate cleanup based on explicit mode + verification status.
-8. Emit session report.
+1. Identify the logical device id from config (`backup.deviceId`) for snapshot paths.
+2. Build backup plan by enabled collectors (future: wired to MTP copy paths).
+3. Copy data to timestamped snapshot.
+4. Generate manifest with hashes and metadata.
+5. Verify copied files against manifest.
+6. Gate cleanup based on explicit mode + verification status.
+7. Emit session report.
 
 ## Safety invariants
 
