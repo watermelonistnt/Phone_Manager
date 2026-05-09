@@ -75,9 +75,10 @@ Assume future maintainers may not read source deeply. Document operational inten
 
 - After each meaningful stage, suggest commit and push to preserve progress.
 - Before commit/push, run secret-safety checks and review staged changes.
-- For every push request, summarize changes using `docs/templates/git-push-summary.md`.
+- **Commit-only** messages: no `AUTHOURISE` gate; no mandatory push sentence.
+- **Push requests**: summarize changes using `docs/templates/git-push-summary.md`, then ask for approval with exact sentence `say "AUTHOURISE" to push to git`.
 - Never push unless the user explicitly replies `AUTHOURISE`.
-- Every push request must include: `say "AUTHOURISE" to push to git`.
+- After successful push: reply with exact sentence `PUSHED to git`.
 
 ## PR review checklist
 

@@ -33,4 +33,9 @@
 - Target branch: `<branch>`
 - Remote: `<remote>`
 - Request: confirm push approval.
-- say "AUTHOURISE" to push to git
+- Include this exact line **only when asking the user to authorize push** (not for commit-only work):
+  - say "AUTHOURISE" to push to git
+
+## After push (agent reply)
+- After remote push succeeds, reply with this exact line:
+  - PUSHED to git

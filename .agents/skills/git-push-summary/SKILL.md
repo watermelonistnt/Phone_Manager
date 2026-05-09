@@ -19,9 +19,9 @@ Provide a consistent push-approval workflow for this repository:
 1. Inspect current git state (`status`, relevant diffs, recent commits).
 2. Run repository safety checks before commit/push.
 3. Summarize changes using the template at `docs/templates/git-push-summary.md`.
-4. Ask the user for approval and include the exact sentence:
-   - `say "AUTHOURISE" to push to git`
+4. When **requesting push** (not for commit-only updates): ask for approval and include the exact sentence `say "AUTHOURISE" to push to git`.
 5. Push only after the user replies with `AUTHOURISE`.
+6. After push succeeds, reply with exact sentence: `PUSHED to git`.
 
 ## Hard Rules
 

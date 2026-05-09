@@ -13,7 +13,7 @@ Maintain documentation as the primary interface for AI-agent handoff and user vi
 - Update root `CURRENT_STATUS.html` when progress moves or firmed ideas appear — **default:** delegate both `docs/progress.md` + `CURRENT_STATUS.html` to a background Cursor Task (see root `AGENT.md`); user need not ask each time.
 - Record architecture-level decisions in `docs/decisions/` as ADR updates.
 - Do not include secrets, personal data, or local machine identifiers.
-- For push approvals, use `docs/templates/git-push-summary.md` and require explicit `AUTHOURISE`.
+- For push approvals, use `docs/templates/git-push-summary.md`, require explicit `AUTHOURISE`, and include `say "AUTHOURISE" to push to git` **only when requesting push**. After successful push: `PUSHED to git`.
 
 ## Minimum docs updates per feature change
 

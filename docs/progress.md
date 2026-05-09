@@ -2,6 +2,24 @@
 
 Use this format for meaningful sessions only. Keep balanced signal. Keep pushed blocks immutable.
 
+## 2026-05-09 - Push phrase scope + post-push confirmation
+
+- Objective: use push-auth sentence only when requesting push; confirm after successful push.
+- Completed:
+  - updated root `AGENT.md` Policy 3, `agent-core-policy.mdc`, `docs/agent-workflow.md`
+  - updated `docs/templates/git-push-summary.md`, `.agents/skills/git-push-summary/SKILL.md`
+  - updated `docs/AGENT.md`, `agent-docs-guidance.mdc`
+  - amended post-push line → `PUSHED to git` (avoid AUTHOURISE-shaped caps on confirm stage)
+- Decisions:
+  - `say "AUTHOURISE" to push to git` only when asking user to authorize **push** (not commit-only / generic git)
+  - after remote push succeeds → agent reply exact line `PUSHED to git`
+- Validation:
+  - grep sweep for stale wording on touched files
+- Blockers:
+  - none
+- Next actions:
+  - follow new phrasing on next push flow
+
 ## 2026-05-09 - Mandatory parallel Task for progress + HTML
 
 - Objective: operator never repeats request; auto background Task syncs handoff after substantive work or future-job capture.

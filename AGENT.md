@@ -20,9 +20,10 @@ This repository is maintained primarily through AI agents. Treat this file as th
 
 - After each meaningful stage, the agent should suggest creating a commit and pushing to preserve progress.
 - Before every commit and push, the agent must re-check changed files for forbidden secret-like values and forbidden tracked files.
-- For every push request, the agent must summarize changes and ask for user confirmation first.
+- For **commits only** (no push yet): summarize if helpful; do **not** require `AUTHOURISE` and do **not** include the push-authorization sentence.
+- For **push**: summarize changes, ask for confirmation first, then include this exact sentence **only when requesting push approval**: `say "AUTHOURISE" to push to git`.
 - The agent must not push unless the user explicitly says: `AUTHOURISE`.
-- Every push request must include this exact sentence: `say "AUTHOURISE" to push to git`.
+- After a **successful** remote push, reply with this exact sentence: `PUSHED to git`.
 
 ## Global Read Order (All Agents)
 
