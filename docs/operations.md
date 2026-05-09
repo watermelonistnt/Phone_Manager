@@ -7,13 +7,22 @@
 3. Connect the phone with USB **File transfer / MTP** when using Windows copy helpers.
 4. Run `make run` (or `python -m src.cli.main run`). Review the printed run folder, manifest, and report.
 
-### Per-user phones (`config.local.json` only)
+### Phone-specific paths (`config.phone.json`, gitignored)
 
-Use this when one machine backs up **multiple people** or **multiple phones**, or you swap handsets: define **`users.<userKey>.phones.<phoneKey>`** and select the active pair with **`activeUserId`** + **`activePhoneId`**. Tracked [`config.example.json`](config.example.json) shows placeholder keys only; put real values (for example the exact string shown under **This PC** for your phone) in **`config.local.json`** only.
+Use **ignored** `config.phone.json` for values that identify **this** phone under **This PC** and the **MTP folder paths** you want tools to target (camera under DCIM, WhatsApp media, etc.). Merge order is **`config.json`** → **`config.local.json`** → **`config.phone.json`** (later files win on overlapping keys).
+
+- Bootstrap once from the **repo root**: `py -3.12 -m src.cli.main phone-init` or `.venv\Scripts\python -m src.cli.main phone-init` after `pip install -e ".[dev]"` (copies [`config.phone.example.json`](../config.phone.example.json) to `config.phone.json` if missing). With GNU Make: `make phone-config`. **`phone-init` alone is not a PATH command** — always use `python -m src.cli.main phone-init` (or `py -3.12 -m …`).
+- Edit `config.phone.json` by hand anytime; the program reads it on each run.
+
+### Per-user phones (`config.phone.json` recommended)
+
+Use this when one machine backs up **multiple people** or **multiple phones**, or you swap handsets: define **`users.<userKey>.phones.<phoneKey>`** and select the active pair with **`activeUserId`** + **`activePhoneId`**. Tracked [`config.phone.example.json`](../config.phone.example.json) shows placeholder keys only; put real values (for example the exact string shown under **This PC** for your phone) in **`config.phone.json`** only.
 
 - **`thisPcDeviceNameSubstring`**: substring match for MTP (`tools/mtp_copy.ps1` **`-DeviceName`**).
 - **`backupDeviceId`**: folder-safe id used for Python snapshots / manifest logical id (overrides top-level **`backup.deviceId`** when the profile resolves).
-- **`mtp.relativePath`**: use **`AUTO`** or empty for `**/DCIM/Camera` discovery; otherwise an explicit backslash path.
+- **`mtp.relativePath`**: use **`AUTO`** or empty for `**/DCIM/Camera` discovery; otherwise an explicit path (backslashes as shown in Explorer).
+- **`mtp.cameraRelativePath`**: optional; when set, overrides **`mtp.relativePath`** for the camera / primary MTP copy target (same semantics as **`-RelativePath`**).
+- **`mtp.whatsappMediaRelativePath`**: optional path relative to internal storage for WhatsApp media (exposed to Python as `Settings.mtp_whatsapp_media_relative_path`; default collector path remains typical Android layout when omitted).
 - **`mtp.maxSearchDepth`**: optional positive integer (default **20**).
 
 If **`activeUserId`** / **`activePhoneId`** are missing or the path does not resolve, the app falls back to top-level **`backup.deviceId`** as before.
@@ -49,7 +58,7 @@ Add **`-UseRepoConfig`** to pull **`-DeviceName`**, **`-RelativePath`**, and **`
 
    You can also pass `-RelativePath` with exact folder names as shown in Explorer.
 
-**Note:** This uses the same Shell layer as Explorer. For scripting, prefer stable **`DeviceName`** / **`RelativePath`** values in your own notes or `config.local.json` (not committed) rather than hardcoding device display strings in tracked files.
+**Note:** This uses the same Shell layer as Explorer. For scripting, prefer stable **`DeviceName`** / **`RelativePath`** values in **`config.phone.json`** (not committed) rather than hardcoding device display strings in tracked files.
 
 ## Verification
 

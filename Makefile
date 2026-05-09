@@ -1,7 +1,7 @@
 PYTHON ?= python
 PIP ?= $(PYTHON) -m pip
 
-.PHONY: setup lint test run safety mtp-copy-photo
+.PHONY: setup lint test run safety mtp-copy-photo phone-config
 
 setup:
 	$(PYTHON) -m venv .venv
@@ -21,6 +21,9 @@ safety:
 
 run:
 	.venv/Scripts/python -m src.cli.main run
+
+phone-config:
+	.venv/Scripts/python -m src.cli.main phone-init
 
 # Windows: MTP copy using merged config (optional DEVICE= overrides this-PC name substring).
 mtp-copy-photo:

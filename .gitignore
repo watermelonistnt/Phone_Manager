@@ -28,6 +28,7 @@ tmp/
 .env.*
 !.env.example
 config.local.json
+config.phone.json
 secrets.local.json
 *.pem
 *.key

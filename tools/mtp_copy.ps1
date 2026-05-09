@@ -92,17 +92,27 @@ function Get-ActivePhoneProfileFromMerged {
         $depth = 20
     }
     $rel = ""
-    if ($mtp -and ($null -ne $mtp.relativePath)) {
-        $rel = [string]$mtp.relativePath
+    if ($mtp) {
+        if ($null -ne $mtp.cameraRelativePath -and [string]$mtp.cameraRelativePath.Trim()) {
+            $rel = [string]$mtp.cameraRelativePath
+        }
+        elseif ($null -ne $mtp.relativePath) {
+            $rel = [string]$mtp.relativePath
+        }
+    }
+    $wa = ""
+    if ($mtp -and ($null -ne $mtp.whatsappMediaRelativePath)) {
+        $wa = [string]$mtp.whatsappMediaRelativePath
     }
     $dn = ""
     if ($null -ne $phone.thisPcDeviceNameSubstring) {
         $dn = [string]$phone.thisPcDeviceNameSubstring
     }
     return @{
-        DeviceNameSubstring = $dn.Trim()
-        RelativePath        = $rel.Trim()
-        MaxSearchDepth      = $depth
+        DeviceNameSubstring       = $dn.Trim()
+        RelativePath              = $rel.Trim()
+        MaxSearchDepth            = $depth
+        WhatsappMediaRelativePath = $wa.Trim()
     }
 }
 
@@ -148,6 +158,9 @@ if ($UseRepoConfig) {
             $MaxSearchDepth = $prof.MaxSearchDepth
         }
         Write-Host "Applied repo config profile (active user/phone MTP defaults where CLI omitted)."
+        if ($prof.WhatsappMediaRelativePath) {
+            Write-Host ("Configured WhatsApp media (relative to internal storage): {0}" -f $prof.WhatsappMediaRelativePath)
+        }
     }
     else {
         Write-Host "UseRepoConfig: no active user/phone profile found; CLI defaults unchanged."

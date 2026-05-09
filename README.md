@@ -21,11 +21,12 @@ This project targets family users who are not comfortable with technical steps o
 ## Quickstart
 
 1. Install Python 3.12.
-2. Run:
-   - `make setup`
-   - `make lint`
-   - `make test`
-   - `make run`
-3. Optional: copy one camera photo over MTP on Windows — `make mtp-copy-photo` (uses **`-UseRepoConfig`**: merged `config.json` + **`config.local.json`**, active user/phone MTP defaults) or override with `make mtp-copy-photo DEVICE=YourSubstring`.
+2. From the repo root, run (GNU **Make** optional — if `make` is missing on Windows, use the **Python** lines instead):
+   - `make setup` — or: `py -3.12 -m venv .venv` then `.venv\Scripts\python -m pip install -e ".[dev]"` (PowerShell).
+   - `make lint` — or: `.venv\Scripts\python -m ruff check .` then `black --check .` then `mypy src`.
+   - `make test` — or: `.venv\Scripts\python -m pytest`.
+   - `make run` — or: `.venv\Scripts\python -m src.cli.main run` (or `py -3.12 -m src.cli.main run` if the package is on `PYTHONPATH` / installed editable).
+3. Optional: phone MTP paths — from repo root run **`py -3.12 -m src.cli.main phone-init`** (or **`python -m src.cli.main phone-init`**) once to create ignored **`config.phone.json`** from **`config.phone.example.json`**; with Make installed, `make phone-config` does the same. Then edit that file (see `docs/operations.md`). There is no standalone `phone-init` executable on `PATH`.
+4. Optional: copy one camera photo over MTP on Windows — `make mtp-copy-photo` **or** the PowerShell one-liner in `docs/operations.md` (merged `config.json` + **`config.local.json`** + **`config.phone.json`** when using **`-UseRepoConfig`**).
 
 See `docs/architecture.md` for design details and `docs/operations.md` for runbook steps.

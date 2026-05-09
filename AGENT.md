@@ -15,6 +15,7 @@ This repository is maintained primarily through AI agents. Treat this file as th
 - Required baseline examples:
   - `.env.example`
   - `config.example.json`
+  - `config.phone.example.json` (phone-specific MTP paths; real values live in ignored `config.phone.json`)
 
 ## Mandatory Policy 3: Controlled Commit and Push Flow
 
@@ -46,8 +47,8 @@ This repository is maintained primarily through AI agents. Treat this file as th
 
 ## Secret Naming and Storage Rules
 
-- Allowed local secret filenames (ignored): `.env`, `.env.local`, `config.local.json`, `secrets.local.json`.
-- Required tracked templates: `.env.example`, `config.example.json`, `secrets.example.json` (if corresponding local file is used).
+- Allowed local secret filenames (ignored): `.env`, `.env.local`, `config.local.json`, `config.phone.json`, `secrets.local.json`.
+- Required tracked templates: `.env.example`, `config.example.json`, `config.phone.example.json`, `secrets.example.json` (if corresponding local file is used).
 - Never commit files that end with:
   - `.pem`, `.key`, `.p12`, `.jks`
   - `.mobileprovision`, `.keystore`

@@ -1,18 +1,19 @@
 from __future__ import annotations
 
-from pathlib import Path
 import subprocess
 import sys
-
+from pathlib import Path
 
 REQUIRED_EXAMPLES = (
     ".env.example",
     "config.example.json",
+    "config.phone.example.json",
 )
 
 FORBIDDEN_TRACKED_PATHS = (
     ".env",
     "config.local.json",
+    "config.phone.json",
     "secrets.local.json",
 )
 

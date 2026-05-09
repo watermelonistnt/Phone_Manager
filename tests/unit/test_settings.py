@@ -91,8 +91,27 @@ def test_load_merged_config_dict_order(monkeypatch: pytest.MonkeyPatch, tmp_path
     monkeypatch.chdir(tmp_path)
     (tmp_path / "config.json").write_text('{"a": 1, "nested": {"x": 1}}', encoding="utf-8")
     (tmp_path / "config.local.json").write_text('{"nested": {"y": 2}, "b": 2}', encoding="utf-8")
+    (tmp_path / "config.phone.json").write_text('{"a": 3, "nested": {"z": 3}}', encoding="utf-8")
     merged = load_merged_config_dict()
-    assert merged["a"] == 1
+    assert merged["a"] == 3
     assert merged["b"] == 2
     assert merged["nested"]["x"] == 1
     assert merged["nested"]["y"] == 2
+    assert merged["nested"]["z"] == 3
+
+
+def test_nested_camera_relative_path_overrides_relative_path(
+    monkeypatch: pytest.MonkeyPatch, tmp_path: Path
+) -> None:
+    monkeypatch.chdir(tmp_path)
+    (tmp_path / "config.phone.json").write_text(
+        '{"activeUserId": "u1", "activePhoneId": "p1", '
+        '"users": {"u1": {"phones": {"p1": {'
+        '"thisPcDeviceNameSubstring": "P", "backupDeviceId": "id1", '
+        '"mtp": {"relativePath": "AUTO", "cameraRelativePath": "DCIM/Camera", '
+        '"whatsappMediaRelativePath": "Android/media/com.whatsapp/WhatsApp/Media"}}}}}}',
+        encoding="utf-8",
+    )
+    settings = load_settings()
+    assert settings.mtp_relative_path == "DCIM/Camera"
+    assert settings.mtp_whatsapp_media_relative_path == "Android/media/com.whatsapp/WhatsApp/Media"

@@ -18,6 +18,7 @@ class Settings:
     mtp_this_pc_device_name_substring: str | None = None
     mtp_relative_path: str = ""
     mtp_max_search_depth: int = 20
+    mtp_whatsapp_media_relative_path: str | None = None
 
 
 def _deep_merge(base: dict[str, Any], overlay: dict[str, Any]) -> dict[str, Any]:
@@ -42,6 +43,12 @@ def _device_id_from_config(raw: object) -> str | None:
         return None
     stripped = raw.strip()
     return stripped or None
+
+
+def _str_or_empty(raw: object) -> str:
+    if not isinstance(raw, str):
+        return ""
+    return raw.strip()
 
 
 def _resolve_active_phone_profile(merged: dict[str, Any]) -> dict[str, Any] | None:
@@ -69,11 +76,14 @@ def _resolve_active_phone_profile(merged: dict[str, Any]) -> dict[str, Any] | No
     mtp_raw = phone.get("mtp")
     mtp: dict[str, Any] = mtp_raw if isinstance(mtp_raw, dict) else {}
 
+    cam_raw = mtp.get("cameraRelativePath")
     rel_raw = mtp.get("relativePath")
-    if isinstance(rel_raw, str):
-        mtp_relative = rel_raw.strip()
+    if isinstance(cam_raw, str) and cam_raw.strip():
+        mtp_camera = cam_raw.strip()
+    elif isinstance(rel_raw, str):
+        mtp_camera = rel_raw.strip()
     else:
-        mtp_relative = ""
+        mtp_camera = ""
 
     depth_raw = mtp.get("maxSearchDepth", 20)
     try:
@@ -89,18 +99,22 @@ def _resolve_active_phone_profile(merged: dict[str, Any]) -> dict[str, Any] | No
     bid_raw = phone.get("backupDeviceId")
     bid_s = bid_raw.strip() if isinstance(bid_raw, str) else ""
 
+    wa_raw = mtp.get("whatsappMediaRelativePath")
+    wa_s = wa_raw.strip() if isinstance(wa_raw, str) else ""
+
     return {
         "thisPcDeviceNameSubstring": name_s,
         "backupDeviceId": bid_s,
-        "mtpRelativePath": mtp_relative,
+        "mtpRelativePath": mtp_camera,
         "mtpMaxSearchDepth": mtp_depth,
+        "mtpWhatsappMediaRelativePath": wa_s or None,
     }
 
 
 def load_merged_config_dict() -> dict[str, Any]:
-    """Return merged config dict: ``config.json`` then ``config.local.json`` (runtime order)."""
+    """Merge ``config.json``, ``config.local.json``, then ``config.phone.json`` (later wins)."""
     merged: dict[str, Any] = {}
-    for candidate in (Path("config.json"), Path("config.local.json")):
+    for candidate in (Path("config.json"), Path("config.local.json"), Path("config.phone.json")):
         if candidate.is_file():
             merged = _deep_merge(merged, json.loads(candidate.read_text(encoding="utf-8")))
     return merged
@@ -118,6 +132,7 @@ def load_settings() -> Settings:
     mtp_name: str | None = None
     mtp_rel = ""
     mtp_depth = 20
+    mtp_wa: str | None = None
     device_id: str
 
     if profile is not None:
@@ -136,6 +151,8 @@ def load_settings() -> Settings:
         rel_raw = profile.get("mtpRelativePath")
         mtp_rel = rel_raw if isinstance(rel_raw, str) else ""
         mtp_depth = int(profile.get("mtpMaxSearchDepth", 20))
+        wa = profile.get("mtpWhatsappMediaRelativePath")
+        mtp_wa = wa if isinstance(wa, str) and wa.strip() else None
     else:
         device_id = _device_id_from_config(backup.get("deviceId")) or "mtp-device"
 
@@ -148,4 +165,5 @@ def load_settings() -> Settings:
         mtp_this_pc_device_name_substring=mtp_name,
         mtp_relative_path=mtp_rel,
         mtp_max_search_depth=mtp_depth,
+        mtp_whatsapp_media_relative_path=mtp_wa,
     )

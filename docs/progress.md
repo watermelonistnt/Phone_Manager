@@ -2,6 +2,20 @@
 
 Use this format for meaningful sessions only. Keep balanced signal. Keep pushed blocks immutable.
 
+## 2026-05-09 - config.phone.json (gitignored phone paths)
+
+- Objective: Per-phone MTP strings + nested `users`/`phones` off main example into last-merge gitignored layer; bootstrap path for operators.
+- Completed:
+  - `config.phone.json` gitignored; tracked `config.phone.example.json` placeholders (`activeUserId`, `activePhoneId`, nested `users`/`phones`, `mtp.relativePath`, `mtp.cameraRelativePath`, `mtp.whatsappMediaRelativePath`, `mtp.maxSearchDepth`, `thisPcDeviceNameSubstring`, `backupDeviceId`)
+  - `config.example.json` trimmed — top-level backup/storage/notifications only (no nested users in main example)
+  - Merge order `config.json` → `config.local.json` → `config.phone.json` in `load_merged_config_dict`; `Settings.mtp_whatsapp_media_relative_path`; camera path prefers `cameraRelativePath`, else `relativePath`
+  - `src/config/phone_config.py`; CLI `phone-init`; `make phone-config`; `.gitignore` + `check_repo_safety` requires example, forbids tracking `config.phone.json`
+  - `AGENT.md` phone example + ignored file; `mtp_copy.ps1` merged profile paths; `docs/operations.md`, `README.md`; `collectors/whatsapp.py` `build_whatsapp_plan(settings)` uses `mtp_whatsapp_media_relative_path` when set
+  - **Micro (same day):** Win ops confused — no `make` on box; `phone-init` not a PATH command (no shim). From repo root use `py -3.12 -m src.cli.main phone-init` or venv `python -m src.cli.main phone-init`. README + `docs/operations.md` now say so.
+- Validation: `py -3.12 -m pytest tests -q` → **10** passed; `ruff check src tools tests` OK; `mypy src` OK
+- Blockers: none
+- Next: wire collectors deeper; optional NAS
+
 ## 2026-05-09 - Nested User → Phone config (local + MTP)
 
 - Objective: Maintainer sets `users.{userId}.phones.{phoneKey}` once; family uses `make mtp-copy-photo` / pipeline with `activeUserId` + `activePhoneId`; real This PC strings only in ignored `config.local.json`.
@@ -14,6 +28,7 @@ Use this format for meaningful sessions only. Keep balanced signal. Keep pushed 
   - `tests/unit/test_settings.py` expanded; `py -3.12 -m pytest tests -q` → **9** passed
 - Blockers: none
 - Next: optional per-phone `nasMediaRoot`; collectors read `Settings` MTP hints
+- Layout superseded same day for phone strings: nested profiles + MTP-relative fields default to gitignored `config.phone.json` (template `config.phone.example.json`; merge last — see preceding block).
 
 ## 2026-05-09 - Remove ADB; MTP-first v1
 
