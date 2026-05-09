@@ -4,7 +4,8 @@
     "retentionSnapshots": 10
   },
   "storage": {
-    "nasMediaRoot": "\\\\YOUR_NAS_HOST\\phone_media"
+    "nasMediaRoot": "\\\\YOUR_NAS_HOST\\phone_media",
+    "nasMediaUserFolder": ""
   },
   "notifications": {
     "enabled": false,

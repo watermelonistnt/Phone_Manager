@@ -2,6 +2,36 @@
 
 Use this format for meaningful sessions only. Keep balanced signal. Keep pushed blocks immutable.
 
+## 2026-05-09 - Per-image MTP→NAS archive + shared MTP shell helpers
+
+- Objective: Per-image MTP → NAS archive with phone quarantine + shared Shell helpers (one codebase path for camera folder resolution).
+- Completed:
+  - **`tools/mtp_shell_common.ps1`** — shared helpers; **`Read-RepoMergedConfigObject`**; **`Resolve-MtpCameraShellFolder`**
+  - **`tools/mtp_copy.ps1`** — refactored to **dot-source** common
+  - **`tools/mtp_nas_archive.ps1`** — keep items with year ≤ refYear−2; **oldest first**; **tmp** staging; **SHA256** verify after copy; NAS layout **`nasMediaRoot/{User}/Image|Video`**; JSONL **`logs/mtp-archive.jsonl`**; **resume** via **`resumeKey`**; **`-CleanupHidden`**
+  - **Makefile** — **`mtp-archive-list`**, **`mtp-archive-one`**, **`mtp-archive-all`**, **`mtp-archive-cleanup-hidden`**
+  - **`config.example.json`** — **`nasMediaUserFolder`**; **`config.phone.example.json`** — **`mtp.archiveHiddenRelativePath`**
+  - **`docs/operations.md`** + **README** one-liner (archive entry path)
+- Validation: **`py -3.12 -m pytest tests -q`** → **10** passed (venv may lack pytest — same command still the log line; record pass/fail).
+- Risks: MTP **date/size** metadata **locale-dependent**; **`MoveHere`** / **`Delete`** can be **async-ish** on some handsets.
+- Next: operator **handset smoke** — full **one-file** archive run + **NAS reachability**.
+
+## 2026-05-09 - Operator: desktop ingest chain verified (MTP → tmp → NAS)
+
+- **Operator confirmed:** desktop ingest chain works: **`py -3.12 -m src.cli.main phone-init`** bootstraps gitignored **`config.phone.json`** (template — does **not** auto-discover MTP paths; operator fills **`thisPcDeviceNameSubstring`**, **`mtp.*`** paths); merged config + **`tools/mtp_copy.ps1`** / **`make mtp-copy-photo`** for phone → **`tmp`**; **`tools/nas_media_copy.ps1`** / **`make nas-media-copy`** for **`tmp`** → **`storage.nasMediaRoot`**.
+- **Conclusion:** MTP + NAS **desktop I/O** for this v1 path is **ready**.
+- **Still pending (unchanged backlog):** Python backup pipeline / collectors consuming the same paths — wire collectors to MTP-import paths under the repo; align with merged **Settings** (active user/phone, MTP hints); collector adapters + integration fixtures; optional per-phone **`nasMediaRoot`**; automated safety checks in local/CI; environment setup items (**gh**, Python 3.12 install smoke) per **CURRENT_STATUS.html** Pending Works.
+- Blockers: none for the verified desktop chain.
+- Next: pipeline + collector work against the same path contract PowerShell ingest already uses.
+
+## 2026-05-09 - NAS media copy (`nas_media_copy.ps1`)
+
+- Objective: Push ingested images from repo **`tmp`** (or **`-SourceFile`**) to NAS using merged **`storage.nasMediaRoot`**; normalize **`host/share`** → **`\\host\share`** UNC; operator dry-run via **`-ListOnly`**.
+- Completed: **`tools/nas_media_copy.ps1`** — reads merged JSON via **`tools/read_merged_config.py`**; UNC-normalize **`nasMediaRoot`**; **`-ListOnly`** works even when **`tmp`** has no images (path + reachability only); **`make nas-media-copy-list`** / **`make nas-media-copy`** in Makefile.
+- Validation: **`-ListOnly`** is the safe check; full paths still need live SMB — if NAS unreachable, operator expects errors / empty listing (not a CI gate).
+- Risks: UNC wrong, offline share, or ACL → copy fails; operator must have share mapped / reachable for real writes.
+- Next: operator reruns **without** **`-ListOnly`** once share credentials + path verified.
+
 ## 2026-05-09 - MTP AUTO BFS prune (efficiency)
 
 - Objective: AUTO `DCIM/Camera` search skip expanding obviously unrelated / huge subtrees (Android, Music, …); opt-out + repo overrides.

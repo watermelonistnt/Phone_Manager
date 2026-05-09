@@ -10,6 +10,7 @@
           "mtp": {
             "relativePath": "AUTO",
             "cameraRelativePath": "",
+            "archiveHiddenRelativePath": "DCIM\\.hidden.phone.manager",
             "maxSearchDepth": 20,
             "dcimBfsPrune": true,
             "dcimBfsExtraPruneFolderNames": [],

@@ -63,6 +63,43 @@ Add **`-UseRepoConfig`** to pull **`-DeviceName`**, **`-RelativePath`**, and **`
 
 **Note:** This uses the same Shell layer as Explorer. For scripting, prefer stable **`DeviceName`** / **`RelativePath`** values in **`config.phone.json`** (not committed) rather than hardcoding device display strings in tracked files.
 
+## MTP per-file archive to NAS (Windows, quarantine on phone)
+
+Use **`tools/mtp_nas_archive.ps1`** when you want **one file at a time**: pull from the camera folder over MTP to **`tmp/mtp-archive-staging`**, verify size/hash, copy to **`{storage.nasMediaRoot}/{User}/Image`** or **`.../Video`** (by extension), verify on NAS, then **move** the original item on the phone into a quarantine folder (default **`DCIM\.hidden.phone.manager`** under internal storage). Each step appends a JSON line to **`logs/mtp-archive.jsonl`** (gitignored parent **`logs/`**). Runs with **`activeUserId`** as **`{User}`** unless **`storage.nasMediaUserFolder`** is set in merged config.
+
+- **Year rule (calendar):** only files whose best-known date has **year ≤ reference year − 2** (default reference year = current local year). Example: in 2026, files from **2025** or **2026** are **not** archived.
+- **Order:** oldest eligible file first (date from MTP details / extended properties, else **`IMG_` / `PXL_` / `VID_`** filename dates). Files with no date are skipped and logged.
+- **Resume:** successful **`phone_move`** lines include **`resumeKey`** (`filename|size`); reruns skip those keys so a stopped run does not re-process completed items.
+- **NAS collision:** if the destination leaf already exists on the NAS, the file is skipped (logged); the phone is not moved.
+- **Cleanup (after you manually confirm NAS):** deletes **only** the quarantine tree on the phone (does not delete loose camera files):
+
+  `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_nas_archive.ps1 -UseRepoConfig -CleanupHidden`
+
+**Config (examples only in repo):**
+
+- **`config.phone.json`** (gitignored): optional **`mtp.archiveHiddenRelativePath`** (default in example: **`DCIM\.hidden.phone.manager`**).
+- **`config.local.json`** / merged: **`storage.nasMediaRoot`** (required for archive, not for **`-ListOnly`**), optional **`storage.nasMediaUserFolder`** to override the folder name under the NAS root (when **`activeUserId`** is not a safe folder name).
+
+**Make targets (repo root, GNU Make):** **`make mtp-archive-list`**, **`make mtp-archive-one`**, **`make mtp-archive-all`**, **`make mtp-archive-cleanup-hidden`** (all pass **`-UseRepoConfig`**).
+
+Shared MTP path logic lives in **`tools/mtp_shell_common.ps1`** (sourced by **`mtp_copy.ps1`** and **`mtp_nas_archive.ps1`**).
+
+## NAS copy from `tmp` (Windows, SMB)
+
+Set **`storage.nasMediaRoot`** in ignored **`config.local.json`** to a UNC share (e.g. **`\\192.168.0.10\media`**) or a **`host\share`** / **`host/share`** string (the script normalizes to UNC). The machine must reach that path the same way Explorer would (mapped drive or direct **`\\server\share`**).
+
+1. Dry run (prints resolved NAS path and reachability; **`tmp`** may be empty):
+
+   `make nas-media-copy-list`
+
+   Or: `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\nas_media_copy.ps1 -ListOnly`
+
+2. After MTP or other steps left images under **`tmp/`**, copy the first image to the NAS root:
+
+   `make nas-media-copy`
+
+   Override source folder, file, or destination: **`-SourceDir`**, **`-SourceFile`**, **`-DestinationRoot`**, **`-MaxFiles`** (see script comment help).
+
 ## Verification
 
 - Ensure `manifest.json` exists in the run folder.

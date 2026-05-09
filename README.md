@@ -27,6 +27,6 @@ This project targets family users who are not comfortable with technical steps o
    - `make test` — or: `.venv\Scripts\python -m pytest`.
    - `make run` — or: `.venv\Scripts\python -m src.cli.main run` (or `py -3.12 -m src.cli.main run` if the package is on `PYTHONPATH` / installed editable).
 3. Optional: phone MTP paths — from repo root run **`py -3.12 -m src.cli.main phone-init`** (or **`python -m src.cli.main phone-init`**) once to create ignored **`config.phone.json`** from **`config.phone.example.json`**; with Make installed, `make phone-config` does the same. Then edit that file (see `docs/operations.md`). There is no standalone `phone-init` executable on `PATH`.
-4. Optional: copy one camera photo over MTP on Windows — `make mtp-copy-photo` **or** the PowerShell one-liner in `docs/operations.md` (merged `config.json` + **`config.local.json`** + **`config.phone.json`** when using **`-UseRepoConfig`**).
+4. Optional: copy one camera photo over MTP on Windows — `make mtp-copy-photo` **or** the PowerShell one-liner in `docs/operations.md` (merged `config.json` + **`config.local.json`** + **`config.phone.json`** when using **`-UseRepoConfig`**). For per-file archive to NAS with phone quarantine, see **`make mtp-archive-list`** / **`make mtp-archive-one`** and **`docs/operations.md`**.
 
 See `docs/architecture.md` for design details and `docs/operations.md` for runbook steps.
