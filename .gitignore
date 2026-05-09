@@ -26,3 +26,12 @@ tmp/
 # Local environment
 .env
 .env.*
+!.env.example
+config.local.json
+secrets.local.json
+*.pem
+*.key
+*.p12
+*.jks
+*.keystore
+*.mobileprovision

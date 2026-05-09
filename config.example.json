@@ -1,0 +1,12 @@
+{
+  "deviceDiscovery": {
+    "preferredSerial": "DEVICE_SERIAL_PLACEHOLDER"
+  },
+  "backup": {
+    "retentionSnapshots": 10
+  },
+  "notifications": {
+    "enabled": false,
+    "webhookUrl": "WEBHOOK_URL_PLACEHOLDER"
+  }
+}

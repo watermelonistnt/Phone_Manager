@@ -1,7 +1,7 @@
 PYTHON ?= python
 PIP ?= $(PYTHON) -m pip
 
-.PHONY: setup lint test run
+.PHONY: setup lint test run safety
 
 setup:
 	$(PYTHON) -m venv .venv
@@ -15,6 +15,9 @@ lint:
 
 test:
 	.venv/Scripts/python -m pytest
+
+safety:
+	.venv/Scripts/python tools/check_repo_safety.py
 
 run:
 	.venv/Scripts/python -m src.cli.main run

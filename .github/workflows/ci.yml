@@ -33,3 +33,6 @@ jobs:
 
       - name: Pytest
         run: pytest
+
+      - name: Repo Safety
+        run: python tools/check_repo_safety.py
