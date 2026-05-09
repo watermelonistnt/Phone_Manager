@@ -1,0 +1,206 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Phone Manager - Current Status Board</title>
+  <style>
+    :root {
+      --bg: #0f172a;
+      --panel: #111827;
+      --panel-soft: #1f2937;
+      --text: #e5e7eb;
+      --muted: #9ca3af;
+      --accent: #22d3ee;
+      --warn: #f59e0b;
+      --ok: #10b981;
+      --info: #60a5fa;
+      --chip-bg: #111827;
+      --chip-border: #374151;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: linear-gradient(160deg, #0b1220 0%, #0f172a 100%);
+      color: var(--text);
+      line-height: 1.5;
+    }
+
+    .container {
+      max-width: 1100px;
+      margin: 0 auto;
+      padding: 24px 16px 40px;
+    }
+
+    h1, h2, h3 { margin: 0 0 10px; }
+    p { margin: 0 0 12px; color: var(--muted); }
+    ul, ol { margin: 0; padding-left: 22px; }
+    li { margin: 8px 0; }
+
+    .hero {
+      background: var(--panel);
+      border: 1px solid #243244;
+      border-radius: 14px;
+      padding: 18px;
+      margin-bottom: 16px;
+    }
+
+    .hero h1 {
+      font-size: 1.5rem;
+      color: #ecfeff;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 14px;
+      margin-bottom: 14px;
+    }
+
+    .card {
+      background: var(--panel);
+      border: 1px solid #243244;
+      border-radius: 14px;
+      padding: 16px;
+    }
+
+    .card h2 {
+      font-size: 1.1rem;
+      color: #dbeafe;
+    }
+
+    .chip {
+      display: inline-block;
+      margin-right: 8px;
+      margin-bottom: 8px;
+      padding: 4px 10px;
+      border-radius: 999px;
+      border: 1px solid var(--chip-border);
+      background: var(--chip-bg);
+      font-size: 0.82rem;
+      color: #d1d5db;
+    }
+
+    .chip.warn { border-color: #7c4a03; color: #fcd34d; }
+    .chip.ok { border-color: #065f46; color: #6ee7b7; }
+    .chip.info { border-color: #1e3a8a; color: #93c5fd; }
+
+    .highlight {
+      color: #fef08a;
+      font-weight: 600;
+    }
+
+    .pin {
+      border-left: 4px solid var(--accent);
+      background: var(--panel-soft);
+      padding: 12px;
+      border-radius: 8px;
+      margin: 10px 0 0;
+      color: #d1fae5;
+    }
+
+    .meta {
+      margin-top: 14px;
+      padding-top: 12px;
+      border-top: 1px dashed #334155;
+      color: var(--muted);
+      font-size: 0.92rem;
+    }
+  </style>
+</head>
+<body>
+  <main class="container">
+    <section class="hero">
+      <h1>Current Status Board</h1>
+      <div class="chip info">Live status</div>
+      <div class="chip warn">Frequent updates required</div>
+      <p>This page gives one clear view of project status for daily work and fast handoff.</p>
+      <div class="pin">
+        <strong>Pinned update rule:</strong>
+        update this page every time <span class="highlight">scope</span>,
+        <span class="highlight">priority</span>, owner, or
+        <span class="highlight">next step</span> changes.
+        Same session: mirror progress in <code>docs/progress.md</code>.
+        <strong>Default:</strong> Agent starts a background Task that edits only progress + this page (operator does not repeat request).
+        Lock a line here when an idea is <span class="highlight">firmed</span>.
+      </div>
+    </section>
+
+    <section class="card" style="margin-bottom: 14px;">
+      <h2>Firmed Ideas</h2>
+      <div class="chip ok">Locked decisions</div>
+      <p>Short bullets only. Expand details in <code>docs/progress.md</code> or an ADR.</p>
+      <ul>
+        <li>Live status UI is root <code>CURRENT_STATUS.html</code> only.</li>
+        <li>Progress-bearing work or user-stated future jobs → automatically sync both <code>docs/progress.md</code> and this page (background Task default).</li>
+        <li>Cleanup stays blocked until backup verification succeeds (v1 safety).</li>
+        <li>Review combined diff before commit.</li>
+      </ul>
+    </section>
+
+    <section class="grid">
+      <article class="card">
+        <h2>Pending Works</h2>
+        <div class="chip warn">Pending</div>
+        <ul>
+          <li>Add automated safety checks in local and CI pipelines.</li>
+          <li>Implement real ADB probing for device discovery and trust checks.</li>
+          <li>Implement collector adapters with integration fixtures.</li>
+          <li>Set up Python 3.12 in the local environment.</li>
+          <li>Install <code>gh</code> CLI for GitHub actions in this environment.</li>
+          <li>Configure GitHub authentication for remote operations.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Further Target</h2>
+        <div class="chip info">Near-term</div>
+        <ul>
+          <li>Deliver a stable Android-first backup flow with clear safety gates.</li>
+          <li>Keep cleanup blocked unless verification succeeds.</li>
+          <li>Make lint and test checks part of every change cycle.</li>
+        </ul>
+        <div class="chip info" style="margin-top:10px;">Mid-term</div>
+        <ul>
+          <li>Improve reliability of collectors and backup verification.</li>
+          <li>Reduce operator steps for non-technical family users.</li>
+          <li>Keep reports simple, explicit, and easy to act on.</li>
+        </ul>
+      </article>
+
+      <article class="card">
+        <h2>Current Jobs (Next Step)</h2>
+        <div class="chip ok">Active now</div>
+        <ol>
+          <li>Install Python 3.12 and confirm <code>make setup</code> works.</li>
+          <li>Install <code>gh</code> CLI and configure GitHub authentication.</li>
+          <li>Start real ADB probing in <code>src/devices</code>.</li>
+          <li>Start collector adapter implementation in <code>src/collectors</code>.</li>
+          <li>Run <code>make lint</code> and <code>make test</code> after each meaningful change.</li>
+        </ol>
+      </article>
+    </section>
+
+    <section class="card">
+      <h2>How To Update This Page</h2>
+      <ol>
+        <li>For progress-bearing work or new future jobs: <strong>background Task</strong> updates this file + <code>docs/progress.md</code> only; fallback = edit both inline.</li>
+        <li>Add a bullet under <strong>Firmed Ideas</strong> when a scope, UX, or safety rule is agreed.</li>
+        <li>Update <strong>Pending Works</strong> when a task is added, removed, or blocked.</li>
+        <li>Update <strong>Further Target</strong> when project goals or scope changes.</li>
+        <li>Update <strong>Current Jobs (Next Step)</strong> at the end of each work session.</li>
+        <li>Update date and editor note in the metadata block.</li>
+        <li>Use short sentences and common words.</li>
+      </ol>
+      <div class="meta">
+        Last updated: 2026-05-09<br>
+        Updated by: Agent<br>
+        Note: Mandatory parallel Task policy for progress + status sync (see root AGENT.md).
+      </div>
+    </section>
+  </main>
+</body>
+</html>

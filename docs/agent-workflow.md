@@ -13,19 +13,44 @@ Keep work safe, reviewable, and reproducible while iterating with coding agents.
 ## Session flow
 
 1. Read root `AGENT.md` and relevant folder `AGENT.md`.
-2. Read `docs/progress.md` and open items in `docs/decisions/`.
+2. Read `docs/progress.md`, root `CURRENT_STATUS.html`, and open items in `docs/decisions/`.
 3. Pick one scoped task with clear acceptance criteria.
 4. Implement minimal changes with tests.
 5. Run `make lint`, `make test`, and repo safety checks.
-6. Update `docs/progress.md` with outcomes and next actions.
+6. After progress-bearing work or user-stated future jobs: **default** = spawn background **Task** scoped only to `docs/progress.md` + `CURRENT_STATUS.html` (parent does not edit those paths that turn). Fallback or docs-only session → edit both inline.
 
 ## Handoff protocol (required)
 
-After each meaningful change, update:
+After each meaningful change, sync handoff:
 
-- `docs/progress.md` with change summary, validation, blockers, and next steps
+- **Preferred:** background Task updates only `docs/progress.md` + `CURRENT_STATUS.html` (see root `AGENT.md`).
+- **Or** parent updates both when Task unavailable or session is docs-only on those files.
 - related ADR in `docs/decisions/` when architecture or policy changes
 - root/folder `AGENT.md` when governance rules change
+
+## Progress log policy
+
+- Logging level: balanced.
+- Keep concise signal only:
+  - meaningful implementation outcome
+  - key decision
+  - blocker state
+  - validation result
+  - next action
+- Pre-push prune allowed on current session block.
+- Post-push blocks are immutable.
+- One push should produce one concise finalized log block.
+
+## Firmed ideas on status board
+
+- When an idea is agreed and stable, add one short bullet under **Firmed ideas** in `CURRENT_STATUS.html`.
+- Mirror the same decision in `docs/progress.md` (or an ADR if it is architectural).
+
+## Parallel / background updates (default)
+
+- User does not need to repeat the instruction: agent **automatically** starts a background Task for `docs/progress.md` + `CURRENT_STATUS.html` after substantive work or when user raises future jobs.
+- Parent avoids editing those paths in the same turn when Task runs.
+- Review combined diff before commit.
 
 ## Documentation as interface rule
 
@@ -37,7 +62,7 @@ Assume future maintainers may not read source deeply. Document operational inten
 2. Pick one scoped task with clear acceptance criteria.
 3. Implement minimal changes with tests.
 4. Run `make lint` and `make test`.
-5. Update `docs/progress.md` with outcomes and next actions.
+5. Handoff via parallel Task (see session flow) or inline fallback.
 
 ## Guardrails
 

@@ -1,0 +1,28 @@
+---
+description: Mandatory parallel background Task for progress.md + CURRENT_STATUS.html after substantive work
+alwaysApply: true
+---
+
+# Parallel doc + status sync
+
+When **Cursor Task** is available and the chat is in **Agent** mode:
+
+1. **Triggers** (always fire parallel sync — user does not need to repeat the instruction):
+   - Any **progress-bearing** outcome (implementation, decisions, blockers, validation, next step moved).
+   - User states **new future jobs**, backlog items, or priorities to capture.
+
+2. **Action**: Start a **background Composer Task** scoped **only** to:
+   - `docs/progress.md`
+   - `CURRENT_STATUS.html`
+
+   Task brief must include: objective, completed deltas, validation result, blockers, next actions, new **firmed ideas** (if any). Follow repo balanced / caveman progress style and HTML structure.
+
+3. **Delegation rule**: In that turn, the **parent agent must not** edit `docs/progress.md` or `CURRENT_STATUS.html` if the Task is spawned — avoids races.
+
+4. **Fallback**: If Task cannot run or fails, the parent updates **both** files before ending the turn.
+
+5. **Exceptions** (no Task required):
+   - Session task is **only** editing those two files (or docs-only handoff).
+   - Change is **explicitly non-loggable** per progress governance (micro-noise).
+
+6. User reviews combined diff before commit.

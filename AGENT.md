@@ -28,14 +28,18 @@ This repository is maintained primarily through AI agents. Treat this file as th
 
 1. Read this root `AGENT.md`.
 2. Read local scoped `AGENT.md` in the target folder when present.
-3. Read `docs/architecture.md`, `docs/agent-workflow.md`, and latest `docs/progress.md` entry.
+3. Read `docs/architecture.md`, `docs/agent-workflow.md`, latest `docs/progress.md` entry, and root `CURRENT_STATUS.html` (live board).
 4. Read relevant ADR files under `docs/decisions/`.
 
 ## Global Write Order (All Agents)
 
 1. Implement scoped change.
 2. Update tests and quality checks.
-3. Update `docs/progress.md` with outcomes and blockers.
+3. Sync handoff when work is progress-bearing or user raises future jobs:
+   - **Default (Cursor Agent + Task available):** start a **background Composer Task** that edits **only** `docs/progress.md` and `CURRENT_STATUS.html`. Parent does **not** touch those two paths in that same turn. Task brief includes objective, deltas, validation, blockers, next actions, firmed ideas.
+   - **Fallback:** Task missing or failed → parent updates both files in-session.
+   - **Docs-only session** editing only handoff surfaces → parent may edit both files directly (no Task).
+   - **Non-loggable micro-noise** (per Progress Log Governance) → skip handoff sync.
 4. Update ADRs when architectural decisions change.
 5. Update root/folder `AGENT.md` if governance or workflow policy changes.
 
@@ -57,7 +61,36 @@ Every significant agent task must leave a handoff trail:
 - Open risks/blockers
 - Next action
 
-Record this in `docs/progress.md`.
+Record this in `docs/progress.md` and keep `CURRENT_STATUS.html` in sync when that work counts as progress (see below).
+
+## Current status board (`CURRENT_STATUS.html`)
+
+- Single live status UI in repo root: `CURRENT_STATUS.html` (open in browser).
+- On every **progress-bearing** change or captured **future job**, keep progress log + HTML aligned via **parallel Task** (see Global Write Order) or fallback inline edit.
+- **Firmed idea** (product rule, scope lock, safety rule, UX decision): add a short line under **Firmed ideas** on `CURRENT_STATUS.html` and still log the decision in `docs/progress.md` (or ADR if architectural).
+
+## Progress Log Governance
+
+- Use balanced logging in `docs/progress.md`.
+- Keep critical items plus short meaningful implementation note:
+  - what changed
+  - why changed
+  - validation result
+  - blockers
+  - next action
+- Do not log micro-noise:
+  - tiny revert loops
+  - minor wording edits
+  - no-impact churn
+- Push boundary rule:
+  - pre-push: agent may prune/amend current session block
+  - post-push: pushed block is immutable
+  - each push should map to one concise log block
+
+## Mandatory parallel doc + status updates
+
+- User should **not** need to ask each time: after substantive work or when user states future jobs, **automatically** spawn the background Task described in Global Write Order (unless exception applies).
+- Parent owns factual correctness of the Task brief; user reviews full diff before commit.
 
 ## Folder-Level Agent References
 

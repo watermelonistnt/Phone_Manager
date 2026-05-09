@@ -1,0 +1,20 @@
+---
+description: Testing standards from tests/AGENT.md
+globs: tests/**
+alwaysApply: false
+---
+
+# Tests Guidance
+
+When editing files under `tests/`:
+
+- Add unit tests for deterministic logic changes.
+- Add integration tests for multi-module workflow changes.
+- Prefer fixtures or mocks over real secrets or personal data.
+- Keep tests readable so future agents can extend them quickly.
+
+Minimum coverage intent:
+
+- happy-path pipeline behavior
+- verification and cleanup gate failures
+- CLI command contract expectations

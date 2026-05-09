@@ -10,6 +10,7 @@ Maintain documentation as the primary interface for AI-agent handoff and user vi
 
 - Keep docs concise, task-oriented, and current.
 - Update `docs/progress.md` after meaningful implementation changes.
+- Update root `CURRENT_STATUS.html` when progress moves or firmed ideas appear — **default:** delegate both `docs/progress.md` + `CURRENT_STATUS.html` to a background Cursor Task (see root `AGENT.md`); user need not ask each time.
 - Record architecture-level decisions in `docs/decisions/` as ADR updates.
 - Do not include secrets, personal data, or local machine identifiers.
 - For push approvals, use `docs/templates/git-push-summary.md` and require explicit `AUTHOURISE`.
@@ -17,5 +18,6 @@ Maintain documentation as the primary interface for AI-agent handoff and user vi
 ## Minimum docs updates per feature change
 
 - `docs/progress.md` session entry
+- root `CURRENT_STATUS.html` (pending works, targets, current jobs, firmed ideas) when scope or status moved
 - Any affected operational steps in `docs/operations.md`
 - Any affected agent workflow notes in `docs/agent-workflow.md`

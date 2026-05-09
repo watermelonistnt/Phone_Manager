@@ -1,0 +1,19 @@
+---
+description: Core repository governance derived from AGENT.md
+alwaysApply: true
+---
+
+# Core Agent Policy
+
+Apply these rules for every task in this repository:
+
+- Treat this repository as public; never commit secrets, credentials, tokens, private keys, personal data exports, or machine-specific sensitive paths.
+- Keep real secrets only in local ignored files. Never place real secret values in tracked code, docs, tests, examples, or logs.
+- Ensure ignored secret/config files have tracked example files with placeholders only.
+- Before commit and push, re-check changed files for secret-like values and forbidden tracked files.
+- For push requests, summarize changes first and require explicit `AUTHOURISE`.
+- Include the exact sentence: `say "AUTHOURISE" to push to git`.
+- Read order: root `AGENT.md`, scoped `AGENT.md`, then `docs/architecture.md`, `docs/agent-workflow.md`, latest `docs/progress.md`, root `CURRENT_STATUS.html`, and relevant ADRs in `docs/decisions/`.
+- Write order: implement change, update tests/checks, sync `docs/progress.md` + root `CURRENT_STATUS.html` when progress or firmed ideas change (default: background Task scoped to those two files only; see `.cursor/rules/agent-docs-sync-parallel.mdc`), update ADRs for architectural changes, then update `AGENT.md` policy files when governance changes.
+- Never commit files ending with `.pem`, `.key`, `.p12`, `.jks`, `.mobileprovision`, or `.keystore`.
+- For significant tasks, record in `docs/progress.md`: what changed, why, validation result, risks/blockers, and next action.
