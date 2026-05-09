@@ -2,6 +2,33 @@
 
 Use this format for meaningful sessions only. Keep balanced signal. Keep pushed blocks immutable.
 
+## 2026-05-09 - MTP AUTO BFS prune (efficiency)
+
+- Objective: AUTO `DCIM/Camera` search skip expanding obviously unrelated / huge subtrees (Android, Music, …); opt-out + repo overrides.
+- Completed: `tools/mtp_copy.ps1` default prune list, `-NoDcimBfsPrune`, `mtp.dcimBfsPrune` / `mtp.dcimBfsExtraPruneFolderNames` from merged profile; `config.phone.example.json`; `docs/operations.md`.
+- Validation: not run (PowerShell script change).
+- Next: none
+
+## 2026-05-09 - MTP WhatsApp path probe (`mtp_copy.ps1`)
+
+- Objective: After camera resolution, resolve **`mtp.whatsappMediaRelativePath`** via same **`Resolve-DeviceSubfolder`** rules; print top-level probe (not recursive).
+- Completed: `Show-WhatsAppMediaFolderProbe` + `$script:WhatsappMediaRelativePathFromConfig` from merged profile; `.SYNOPSIS`; `docs/operations.md`.
+- Next: optional recursive listing / copy from WhatsApp when product wants it
+
+## 2026-05-09 - DCIM AUTO priority BFS (`mtp_copy.ps1`)
+
+- Objective: Priority search for upcoming phones using **`mtp.dcimBfsPrioritySegments`** + segments from confirmed **`cameraRelativePath`** / **`relativePath`** (not WhatsApp path); prune still wins.
+- Completed: two-queue `Find-DcimCameraFolder`, `Build-DcimBfsPrioritySegmentHintsList`, profile + `UseRepoConfig` wiring; `config.phone.example.json`; `docs/operations.md`.
+- Next: none
+
+## 2026-05-09 - Push UX: AUTHOURISE / PUSHED last sentence only
+
+- Objective: When an assistant uses the push-request line or post-push confirm line, that exact sentence must be the **final sentence** of the whole message (no trailing content).
+- Completed: `AGENT.md` Mandatory Policy 3; `docs/agent-workflow.md`; `docs/AGENT.md`; `docs/templates/git-push-summary.md`; `.cursor/rules/agent-core-policy.mdc`; `.cursor/rules/agent-docs-guidance.mdc`; `.agents/skills/git-push-summary/SKILL.md`; `CURRENT_STATUS.html` (Firmed Ideas).
+- Validation: doc cross-read
+- Blockers: none
+- Next: none
+
 ## 2026-05-09 - config.phone.json (gitignored phone paths)
 
 - Objective: Per-phone MTP strings + nested `users`/`phones` off main example into last-merge gitignored layer; bootstrap path for operators.

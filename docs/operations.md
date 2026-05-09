@@ -22,8 +22,11 @@ Use this when one machine backs up **multiple people** or **multiple phones**, o
 - **`backupDeviceId`**: folder-safe id used for Python snapshots / manifest logical id (overrides top-level **`backup.deviceId`** when the profile resolves).
 - **`mtp.relativePath`**: use **`AUTO`** or empty for `**/DCIM/Camera` discovery; otherwise an explicit path (backslashes as shown in Explorer).
 - **`mtp.cameraRelativePath`**: optional; when set, overrides **`mtp.relativePath`** for the camera / primary MTP copy target (same semantics as **`-RelativePath`**).
-- **`mtp.whatsappMediaRelativePath`**: optional path relative to internal storage for WhatsApp media (exposed to Python as `Settings.mtp_whatsapp_media_relative_path`; default collector path remains typical Android layout when omitted).
+- **`mtp.whatsappMediaRelativePath`**: optional path relative to internal storage for WhatsApp media (same path rules as **`mtp.cameraRelativePath`**: backslashes, resolved with **`Resolve-DeviceSubfolder`**). Exposed to Python as `Settings.mtp_whatsapp_media_relative_path`. When set and you use **`mtp_copy.ps1 -UseRepoConfig`**, the script **opens that folder after the camera step** and prints a short probe (top-level file count and a few sample names; not recursive — WhatsApp often keeps media in subfolders).
 - **`mtp.maxSearchDepth`**: optional positive integer (default **20**).
+- **`mtp.dcimBfsPrune`**: optional boolean (default **true** when omitted). When **true**, AUTO search skips expanding folder *names* that almost never contain `DCIM/Camera` (e.g. `Android`, `Music`, `Movies`, `Download`, caches). Set **`false`** to search the full tree like older behavior (slower, more MTP folder opens). Rare OEM layouts that keep `DCIM` under a pruned name need **`false`** or an explicit **`mtp.cameraRelativePath`**.
+- **`mtp.dcimBfsExtraPruneFolderNames`**: optional JSON array of extra single-folder segment names to skip during AUTO (same matching rules as built-in list).
+- **`mtp.dcimBfsPrioritySegments`**: optional JSON array of folder **name** hints (single path segment each, case-insensitive). During **`relativePath`: `AUTO`** search for `DCIM/Camera`, **`mtp_copy.ps1`** expands **priority** branches before other folders (two-queue BFS). Order in the array is respected (after de-duplication). If omitted or empty, hints are still built from **`mtp.cameraRelativePath`** and **`mtp.relativePath`** (skipping `AUTO`), then **`DCIM`** and **`Camera`** are always appended if missing — so a **confirmed** layout on one phone (e.g. `DCIM\OpenCamera`) seeds faster search on the next handset without copying the whole `Android\…` tree from WhatsApp paths (those are **not** used for DCIM hints).
 
 If **`activeUserId`** / **`activePhoneId`** are missing or the path does not resolve, the app falls back to top-level **`backup.deviceId`** as before.
 
@@ -36,7 +39,7 @@ Use when the phone appears under **This PC** in File Explorer (USB **File transf
 Add **`-UseRepoConfig`** to pull **`-DeviceName`**, **`-RelativePath`**, and **`-MaxSearchDepth`** from the merged config when you omit those parameters (see **Per-user phones** above). `make mtp-copy-photo` passes **`-UseRepoConfig`** by default.
 
 1. Unlock the phone and accept any trust prompts.
-2. From the repo root, list what would be copied (no files written):
+2. From the repo root, list what would be copied (no files written). With **`whatsappMediaRelativePath`** in the merged profile, this also **resolves and probes** that WhatsApp folder (no copy from there yet):
 
    `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_copy.ps1 -UseRepoConfig -ListOnly`
 
@@ -44,7 +47,7 @@ Add **`-UseRepoConfig`** to pull **`-DeviceName`**, **`-RelativePath`**, and **`
 
    `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_copy.ps1 -DeviceName "YourPhone" -ListOnly`
 
-4. Copy the first image to **`tmp/mtp-incoming`** (gitignored). By default the script **searches** under the internal volume for a **`DCIM/Camera`** folder (same tree as **This PC → your phone → internal storage → DCIM → Camera**). If MTP shows **only one** navigable folder under the phone (typical), that folder is treated as internal storage even when its display name does not match the built-in English/Chinese alias list.
+4. Copy the first image to **`tmp/mtp-incoming`** (gitignored). By default the script **searches** under the internal volume for a **`DCIM/Camera`** folder (same tree as **This PC → your phone → internal storage → DCIM → Camera**). The AUTO walk **prunes** common unrelated subtrees (app data, ringtones, thumbnails, etc.) so MTP does not open every folder; use **`-NoDcimBfsPrune`** for an exhaustive search, or set **`mtp.dcimBfsPrune`** to **`false`** in **`config.phone.json`**. If MTP shows **only one** navigable folder under the phone (typical), that folder is treated as internal storage even when its display name does not match the built-in English/Chinese alias list.
 
    `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_copy.ps1 -DeviceName "YourPhone"`
 

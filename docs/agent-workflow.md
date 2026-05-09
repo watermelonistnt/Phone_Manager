@@ -77,8 +77,9 @@ Assume future maintainers may not read source deeply. Document operational inten
 - Before commit/push, run secret-safety checks and review staged changes.
 - **Commit-only** messages: no `AUTHOURISE` gate; no mandatory push sentence.
 - **Push requests**: summarize changes using `docs/templates/git-push-summary.md`, then ask for approval with exact sentence `say "AUTHOURISE" to push to git`.
+- **Last-sentence rule:** If a reply includes `say "AUTHOURISE" to push to git` or `PUSHED to git`, that exact sentence must be the **final sentence** of the assistant message (nothing after it).
 - Never push unless the user explicitly replies `AUTHOURISE`.
-- After successful push: reply with exact sentence `PUSHED to git`.
+- After successful push: reply with exact sentence `PUSHED to git` as the **last sentence** of the message.
 
 ## PR review checklist
 

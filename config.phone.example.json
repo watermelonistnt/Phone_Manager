@@ -11,6 +11,9 @@
             "relativePath": "AUTO",
             "cameraRelativePath": "",
             "maxSearchDepth": 20,
+            "dcimBfsPrune": true,
+            "dcimBfsExtraPruneFolderNames": [],
+            "dcimBfsPrioritySegments": [],
             "whatsappMediaRelativePath": "Android\\media\\com.whatsapp\\WhatsApp\\Media"
           }
         }

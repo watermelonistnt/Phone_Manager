@@ -12,7 +12,7 @@ When editing files under `docs/`:
 - After meaningful implementation or user-stated future jobs: **default** = background Task edits only `docs/progress.md` + root `CURRENT_STATUS.html` (see `agent-docs-sync-parallel.mdc`). Fallback or docs-only handoff → edit inline.
 - Record architecture-level decisions in `docs/decisions/` as ADR updates.
 - Do not include secrets, personal data, or local machine identifiers.
-- For push approvals, use `docs/templates/git-push-summary.md`, require explicit `AUTHOURISE`, use `say "AUTHOURISE" to push to git` only when requesting push; after successful push use `PUSHED to git`.
+- For push approvals, use `docs/templates/git-push-summary.md`, require explicit `AUTHOURISE`, use `say "AUTHOURISE" to push to git` only when requesting push (that sentence must be the **last sentence** of the reply); after successful push use `PUSHED to git` as the **last sentence** of the reply.
 
 Minimum docs updates per feature change:
 

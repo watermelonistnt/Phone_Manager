@@ -23,8 +23,9 @@ This repository is maintained primarily through AI agents. Treat this file as th
 - Before every commit and push, the agent must re-check changed files for forbidden secret-like values and forbidden tracked files.
 - For **commits only** (no push yet): summarize if helpful; do **not** require `AUTHOURISE` and do **not** include the push-authorization sentence.
 - For **push**: summarize changes, ask for confirmation first, then include this exact sentence **only when requesting push approval**: `say "AUTHOURISE" to push to git`.
+- **Last-sentence rule:** In any assistant reply that includes the push-authorization sentence or the post-push confirmation sentence, that exact sentence must be the **final sentence of the entire message** (no headings, bullets, or other text after it).
 - The agent must not push unless the user explicitly says: `AUTHOURISE`.
-- After a **successful** remote push, reply with this exact sentence: `PUSHED to git`.
+- After a **successful** remote push, reply with this exact sentence as the **last sentence of the message**: `PUSHED to git`.
 
 ## Global Read Order (All Agents)
 
