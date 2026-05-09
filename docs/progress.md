@@ -2,6 +2,19 @@
 
 Use this format for meaningful sessions only. Keep balanced signal. Keep pushed blocks immutable.
 
+## 2026-05-09 - Nested User → Phone config (local + MTP)
+
+- Objective: Maintainer sets `users.{userId}.phones.{phoneKey}` once; family uses `make mtp-copy-photo` / pipeline with `activeUserId` + `activePhoneId`; real This PC strings only in ignored `config.local.json`.
+- Completed:
+  - `config.example.json` — `activeUserId`, `activePhoneId`, `users`/`phones`, `thisPcDeviceNameSubstring`, `backupDeviceId`, `mtp` block
+  - `src/config/settings.py` — `load_merged_config_dict`, `_resolve_active_phone_profile`, Settings fields (`active_user_id`, `active_phone_id`, `mtp_*`), fallback to `backup.deviceId`
+  - `tools/read_merged_config.py` + `tools/mtp_copy.ps1` **`-UseRepoConfig`** (Python merge + PSBoundParameters precedence)
+  - `Makefile` `mtp-copy-photo` always `-UseRepoConfig`, optional `DEVICE=` override
+  - `docs/operations.md` (Per-user phones + MTP UseRepoConfig), `README.md`
+  - `tests/unit/test_settings.py` expanded; `py -3.12 -m pytest tests -q` → **9** passed
+- Blockers: none
+- Next: optional per-phone `nasMediaRoot`; collectors read `Settings` MTP hints
+
 ## 2026-05-09 - Remove ADB; MTP-first v1
 
 - Objective: Drop Android Platform Tools / adb from product plan and Python codebase; align with confirmed MTP copy success.

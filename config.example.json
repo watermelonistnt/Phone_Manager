@@ -1,4 +1,20 @@
 {
+  "activeUserId": "USER_KEY_PLACEHOLDER",
+  "activePhoneId": "PHONE_KEY_PLACEHOLDER",
+  "users": {
+    "USER_KEY_PLACEHOLDER": {
+      "phones": {
+        "PHONE_KEY_PLACEHOLDER": {
+          "thisPcDeviceNameSubstring": "Substring as shown under This PC",
+          "backupDeviceId": "folder-safe-id-for-snapshots",
+          "mtp": {
+            "relativePath": "AUTO",
+            "maxSearchDepth": 20
+          }
+        }
+      }
+    }
+  },
   "backup": {
     "deviceId": "primary-phone",
     "retentionSnapshots": 10

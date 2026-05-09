@@ -19,7 +19,7 @@ class PipelineResult:
 
 
 def _device_path_segment(settings: Settings) -> str:
-    """Stable directory name under backup_root (from config, not adb)."""
+    """Stable directory name under backup_root (top-level or nested phone ``backupDeviceId``)."""
     raw = settings.device_id.strip() if settings.device_id else ""
     if not raw:
         raw = "mtp-device"

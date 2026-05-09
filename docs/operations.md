@@ -2,19 +2,34 @@
 
 ## Standard backup run (Python pipeline)
 
-1. Copy `config.example.json` to ignored `config.local.json` and set **`backup.deviceId`** to a short logical name for this phone (used under `data/backups/<deviceId>/...`). Do not commit secrets, real NAS paths, or personal identifiers you do not want in git.
+1. Copy `config.example.json` to ignored `config.local.json` and set **`backup.deviceId`** to a short logical name for this phone (used under `data/backups/<deviceId>/...`) **unless** you use nested profiles (below). Do not commit secrets, real NAS paths, or personal **This PC** phone display strings you do not want in git.
 2. Set optional **`storage.nasMediaRoot`** in `config.local.json` if you track where NAS copies should go later.
 3. Connect the phone with USB **File transfer / MTP** when using Windows copy helpers.
 4. Run `make run` (or `python -m src.cli.main run`). Review the printed run folder, manifest, and report.
+
+### Per-user phones (`config.local.json` only)
+
+Use this when one machine backs up **multiple people** or **multiple phones**, or you swap handsets: define **`users.<userKey>.phones.<phoneKey>`** and select the active pair with **`activeUserId`** + **`activePhoneId`**. Tracked [`config.example.json`](config.example.json) shows placeholder keys only; put real values (for example the exact string shown under **This PC** for your phone) in **`config.local.json`** only.
+
+- **`thisPcDeviceNameSubstring`**: substring match for MTP (`tools/mtp_copy.ps1` **`-DeviceName`**).
+- **`backupDeviceId`**: folder-safe id used for Python snapshots / manifest logical id (overrides top-level **`backup.deviceId`** when the profile resolves).
+- **`mtp.relativePath`**: use **`AUTO`** or empty for `**/DCIM/Camera` discovery; otherwise an explicit backslash path.
+- **`mtp.maxSearchDepth`**: optional positive integer (default **20**).
+
+If **`activeUserId`** / **`activePhoneId`** are missing or the path does not resolve, the app falls back to top-level **`backup.deviceId`** as before.
+
+`make mtp-copy-photo` passes **`-UseRepoConfig`** so MTP defaults come from merged config when you omit CLI flags. Use **`make mtp-copy-photo DEVICE=OtherName`** to override the This-PC substring for one run.
 
 ## MTP copy (Windows, primary phone access)
 
 Use when the phone appears under **This PC** in File Explorer (USB **File transfer / MTP**). No Android Platform Tools required.
 
+Add **`-UseRepoConfig`** to pull **`-DeviceName`**, **`-RelativePath`**, and **`-MaxSearchDepth`** from the merged config when you omit those parameters (see **Per-user phones** above). `make mtp-copy-photo` passes **`-UseRepoConfig`** by default.
+
 1. Unlock the phone and accept any trust prompts.
 2. From the repo root, list what would be copied (no files written):
 
-   `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_copy.ps1 -ListOnly`
+   `powershell -NoProfile -ExecutionPolicy Bypass -File .\tools\mtp_copy.ps1 -UseRepoConfig -ListOnly`
 
 3. If the script says multiple devices, pass a unique substring of the phone name:
 

@@ -22,6 +22,6 @@ safety:
 run:
 	.venv/Scripts/python -m src.cli.main run
 
-# Windows: copy first camera image to tmp/mtp-incoming via MTP (no adb). Optional DEVICE=name substring.
+# Windows: MTP copy using merged config (optional DEVICE= overrides this-PC name substring).
 mtp-copy-photo:
-	powershell -NoProfile -ExecutionPolicy Bypass -File tools/mtp_copy.ps1 $(if $(DEVICE),-DeviceName "$(DEVICE)",)
+	powershell -NoProfile -ExecutionPolicy Bypass -File tools/mtp_copy.ps1 -UseRepoConfig $(if $(DEVICE),-DeviceName "$(DEVICE)",)

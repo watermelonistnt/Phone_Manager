@@ -13,7 +13,7 @@ This project targets family users who are not comfortable with technical steps o
 ## V1 scope
 
 - Android phones accessed from the desktop over **USB MTP** on Windows (`tools/mtp_copy.ps1` for file copy smoke tests)
-- Python pipeline for manifests, reports, and cleanup gates (`backup.deviceId` in config names snapshot folders)
+- Python pipeline for manifests, reports, and cleanup gates (`backup.deviceId` or nested **`users.*.phones.*.backupDeviceId`** names snapshot folders; see `docs/operations.md`)
 - Backup focus: Camera media and WhatsApp-exported data (collectors to align with MTP paths over time)
 - Manifest-based integrity verification
 - Cleanup gate with dry-run default
@@ -26,6 +26,6 @@ This project targets family users who are not comfortable with technical steps o
    - `make lint`
    - `make test`
    - `make run`
-3. Optional: copy one camera photo over MTP on Windows — `make mtp-copy-photo` or see `docs/operations.md`.
+3. Optional: copy one camera photo over MTP on Windows — `make mtp-copy-photo` (uses **`-UseRepoConfig`**: merged `config.json` + **`config.local.json`**, active user/phone MTP defaults) or override with `make mtp-copy-photo DEVICE=YourSubstring`.
 
 See `docs/architecture.md` for design details and `docs/operations.md` for runbook steps.

@@ -30,10 +30,17 @@
 .PARAMETER ListOnly
   If set, only print what would be used; no copy.
 
+.PARAMETER UseRepoConfig
+  Load merged config.json + config.local.json from the repo root (via tools/read_merged_config.py)
+  and apply the active user/phone MTP fields when DeviceName / RelativePath / MaxSearchDepth are
+  not passed on the command line. Explicit CLI parameters always win.
+
 .EXAMPLE
   .\tools\mtp_copy.ps1 -ListOnly
 .EXAMPLE
   .\tools\mtp_copy.ps1 -DeviceName "Pixel" -MaxFiles 3
+.EXAMPLE
+  .\tools\mtp_copy.ps1 -UseRepoConfig -ListOnly
 #>
 [CmdletBinding()]
 param(
@@ -42,7 +49,8 @@ param(
     [string] $Destination = "",
     [int] $MaxFiles = 1,
     [int] $MaxSearchDepth = 20,
-    [switch] $ListOnly
+    [switch] $ListOnly,
+    [switch] $UseRepoConfig
 )
 
 Set-StrictMode -Version Latest
@@ -51,6 +59,99 @@ $ErrorActionPreference = "Stop"
 $repoRoot = Split-Path -Parent $PSScriptRoot
 if (-not $Destination) {
     $Destination = Join-Path $repoRoot "tmp\mtp-incoming"
+}
+
+function Get-ActivePhoneProfileFromMerged {
+    param($Merged)
+    $uid = $Merged.activeUserId
+    $pid = $Merged.activePhoneId
+    if (-not $uid -or -not $pid) {
+        return $null
+    }
+    try {
+        $user = $Merged.users.$uid
+        $phone = $user.phones.$pid
+    }
+    catch {
+        return $null
+    }
+    if (-not $phone) {
+        return $null
+    }
+    $mtp = $phone.mtp
+    $depth = 20
+    if ($mtp -and ($null -ne $mtp.maxSearchDepth)) {
+        try {
+            $depth = [int]$mtp.maxSearchDepth
+        }
+        catch {
+            $depth = 20
+        }
+    }
+    if ($depth -lt 1) {
+        $depth = 20
+    }
+    $rel = ""
+    if ($mtp -and ($null -ne $mtp.relativePath)) {
+        $rel = [string]$mtp.relativePath
+    }
+    $dn = ""
+    if ($null -ne $phone.thisPcDeviceNameSubstring) {
+        $dn = [string]$phone.thisPcDeviceNameSubstring
+    }
+    return @{
+        DeviceNameSubstring = $dn.Trim()
+        RelativePath        = $rel.Trim()
+        MaxSearchDepth      = $depth
+    }
+}
+
+if ($UseRepoConfig) {
+    $reader = Join-Path $PSScriptRoot "read_merged_config.py"
+    if (-not (Test-Path -LiteralPath $reader)) {
+        throw "Missing read_merged_config.py next to mtp_copy.ps1: $reader"
+    }
+    $py = $null
+    foreach ($name in @("py", "python")) {
+        $cmd = Get-Command $name -ErrorAction SilentlyContinue
+        if ($cmd) {
+            $py = $cmd.Path
+            break
+        }
+    }
+    if (-not $py) {
+        throw "Python (py or python) on PATH is required for -UseRepoConfig."
+    }
+    Push-Location $RepoRoot
+    try {
+        $mergedText = & $py @("-3.12", $reader, $RepoRoot)
+        if ($LASTEXITCODE -ne 0) {
+            $mergedText = & $py @($reader, $RepoRoot)
+        }
+    }
+    finally {
+        Pop-Location
+    }
+    if (-not $mergedText) {
+        throw "read_merged_config.py returned no output."
+    }
+    $mergedObj = $mergedText | ConvertFrom-Json
+    $prof = Get-ActivePhoneProfileFromMerged -Merged $mergedObj
+    if ($prof) {
+        if (-not $PSBoundParameters.ContainsKey("DeviceName")) {
+            $DeviceName = $prof.DeviceNameSubstring
+        }
+        if (-not $PSBoundParameters.ContainsKey("RelativePath")) {
+            $RelativePath = $prof.RelativePath
+        }
+        if (-not $PSBoundParameters.ContainsKey("MaxSearchDepth")) {
+            $MaxSearchDepth = $prof.MaxSearchDepth
+        }
+        Write-Host "Applied repo config profile (active user/phone MTP defaults where CLI omitted)."
+    }
+    else {
+        Write-Host "UseRepoConfig: no active user/phone profile found; CLI defaults unchanged."
+    }
 }
 
 # OEM / locale labels for the built-in flash volume (first folder under the phone in MTP).
